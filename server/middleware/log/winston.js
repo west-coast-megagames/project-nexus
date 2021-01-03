@@ -36,14 +36,6 @@ const logger = createLogger({
 			metaKey: 'meta',
 			collection: 'errors',
 			options: { useUnifiedTopology: true }
-		}),
-		// Info / Warnings / Errors combined
-		new transports.MongoDB({
-			db: dbURI,
-			level: 'info',
-			metaKey: 'meta',
-			collection: 'infos',
-			options: { useUnifiedTopology: true }
 		})
 	]
 });
@@ -62,7 +54,7 @@ else {
 
 // eslint-disable-next-line no-unused-vars
 function routeError(err, req, res, next) {
-	logger.error(`${err.message}`, { meta: err });
+	logger.error(`${err.message}`, { meta: err.stack });
 
 	errorDebugger('Error:', err.message);
 	res.status(500).send(`Error: ${err.message}`);
