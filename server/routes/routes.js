@@ -9,5 +9,8 @@ module.exports = function(app) {
 	logger.info('Route Middleware Loaded...');
 	app.use(bodyParser.json()); // Tells Express to use Body Parser for JSON
 
+	const guild = require('./api/guilds');
+
+	app.use('/api/guilds', guild); // Route for inputing guilds
 	app.use('/', home);
 };

@@ -2,6 +2,7 @@ const fs = require('fs'); // Node.js file system module
 const Discord = require('discord.js'); // Discord.js NPM package
 const settings = require('./botSettings.json'); // Bots settings
 const { logger } = require('../log/winston'); // Error logging
+const { Guild } = require('../../models/guild');
 
 const client = new Discord.Client({ disableEveryone: true }); // Creates Client socket for discord
 client.commands = new Discord.Collection(); // Creates collection of commands for the bot
@@ -82,6 +83,32 @@ module.exports = function() {
 		catch (err) {
 			logger.error(err);
 			message.reply(`There was an error trying to execute the ${cmdName} command`);
+		}
+	});
+
+	// guildCreate
+	/* Emitted whenever the client joins a guild.
+	PARAMETER    TYPE         DESCRIPTION
+	guild        Guild        The created guild    */
+	client.on('guildCreate', async guild => {
+		console.log(`the client joins a guild: ${guild}`);
+
+		const docs = await Guild.find({ guildID: guild.id });
+
+		if (docs.length < 1) {
+			const newGuild = new Guild({
+				guildName: guild.name,
+				guildID: guild.id,
+				owner: guild.ownerID
+			});
+
+			const ann = guild.channels.cache.find(c => c.name === 'announcements');
+			ann ? newGuild.announcementID = ann.id : newGuild.announcementID = 'Unfound';
+
+			await newGuild.save();
+		}
+		else {
+			console.log(`A guild with the id of ${guild.id} already exists in our Database!`);
 		}
 	});
 
